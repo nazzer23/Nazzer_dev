@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="PublishConfigData" autoUpload="Always" serverName="Nazzer.dev_dev" uploadOnCheckin="e6c86563-f895-4691-b650-ce427a53f674">
+    <serverData>
+      <paths name="Nazzer.dev_dev">
+        <serverdata>
+          <mappings>
+            <mapping deploy="/" local="$PROJECT_DIR$/src" web="https://dev.nazzer.dev" />
+          </mappings>
+        </serverdata>
+      </paths>
+    </serverData>
+    <option name="myUploadOnCheckinName" value="Nazzer.dev_dev" />
+    <option name="myAutoUpload" value="ALWAYS" />
+  </component>
+</project>
