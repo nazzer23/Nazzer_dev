@@ -51,7 +51,4 @@ class Main
         $this->template->setVariable("currentYear", date("Y"));
         $this->template->setVariable("siteName", Configuration::siteName);
     }
-
 }
-
-?>
