@@ -1,0 +1,14 @@
+<?php
+
+class Configuration
+{
+    // Global Options
+    const siteName = "";
+    const authorName = "";
+
+    // Database for Main Site
+    const dbHost = "";
+    const dbUser = "";
+    const dbPass = "";
+    const dbName = "";
+}

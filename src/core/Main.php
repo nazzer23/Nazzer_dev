@@ -31,8 +31,6 @@ class Main
         $this->template = new TemplateHandler("site.design");
         $this->setDefaultTemplateSettings();
 
-        // Initialize Session Stuff
-        $this->initializeNavbar();
     }
 
     /**
