@@ -2,6 +2,7 @@
 // Session Management
 session_start();
 
+
 // Imports
 require('config.php');
 require('handlers/DatabaseHandler.php');

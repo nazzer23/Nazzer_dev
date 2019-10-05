@@ -11,6 +11,8 @@ $page = new TemplateHandler($themeFile);
 $page->setVariable("siteName", Configuration::siteName);
 $page->setVariable("articles", null);
 
+generateSidebarContent($page);
+
 $articleQuery = "SELECT articles.*, CategoryName, AuthorLastName, AuthorFirstName, a.AuthorID FROM articles INNER JOIN authors a on articles.AuthorID = a.AuthorID INNER JOIN articles_category ac on articles.ArticleID = ac.ArticleID INNER JOIN categories c2 on ac.CategoryID = c2.CategoryID";
 $articleQuery = $database->executeQuery($articleQuery);
 
@@ -36,3 +38,48 @@ while($articleData = $articleQuery->fetch_array()) {
 $mainTemplate->setVariable("pageName", "Home");
 $mainTemplate->setVariable("content", $page->getTemplate());
 $mainTemplate->render();
+
+function generateSidebarContent($page) {
+    global $database, $functions;
+
+    // Generate Categories
+    $category = new TemplateHandler("site.home.sidebar");
+    $category->setVariable("panelName", "Categories");
+
+    $query = "SELECT * FROM categories ORDER BY CategoryID DESC";
+    $query = $database->executeQuery($query);
+    while($row = $query->fetch_array()) {
+        $item = new TemplateHandler("site.home.sidebar.item");
+        $item->setVariable("itemName", $row['CategoryName']);
+        $item->setVariable("itemDesc", "See all articles under this category.");
+        $item->setVariable("itemBio",$row['CategoryDescription']);
+        $item->setVariable("itemURL", "/category/".$functions->urlClean($row['CategoryName']));
+        $category->appendVariable("panelItems", $item->getTemplate());
+    }
+    $page->appendVariable("sidebarContent", $category->getTemplate());
+
+    // Generate Recent Articles
+    $recentArticles = new TemplateHandler("site.home.sidebar");
+    $recentArticles->setVariable("panelName", "Recent Articles");
+
+    $query = "SELECT articles.*, a.AuthorFirstName, a.AuthorLastName FROM articles INNER JOIN authors a on articles.AuthorID = a.AuthorID ORDER BY ArticleID DESC LIMIT 6";
+    $query = $database->executeQuery($query);
+    while($row = $query->fetch_array()) {
+        $articleDate = strtotime($row['ArticleDate']);
+        $item = new TemplateHandler("site.home.sidebar.item");
+        $item->setVariable("itemName", $row['ArticleTitle']);
+        $item->setVariable("itemDesc", "Read More about " . $row['ArticleTitle']);
+        $item->setVariable("itemBio", "");
+
+        $year = date('Y',$articleDate);
+        $postMonth = date('m',$articleDate);
+        $postDay = date('d',$articleDate);
+        $articleURLTitle = $functions->urlClean($row['ArticleTitle']);
+
+        $item->setVariable("itemURL","/article/{$year}/{$postMonth}/{$postDay}/{$articleURLTitle}/");
+
+        $recentArticles->appendVariable("panelItems", $item->getTemplate());
+    }
+    $page->appendVariable("sidebarContent", $recentArticles->getTemplate());
+
+}
