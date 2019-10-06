@@ -1,5 +1,4 @@
 # Nazzer.dev
-___
 ## What is this?
 This entire repository is the platform that is powering https://nazzer.dev.
 The basis of this platform, was written within a week of designing, developing and testing.
