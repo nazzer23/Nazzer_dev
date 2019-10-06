@@ -25,7 +25,7 @@ if(isset($_GET['category'])) {
     $mainTemplate->setVariable("pageName", "404");
 }
 
-$query = $database->executeQuery("SELECT * FROM articles INNER JOIN articles_category ac on articles.ArticleID = ac.ArticleID INNER JOIN categories c2 on ac.CategoryID = c2.CategoryID INNER JOIN authors a on articles.AuthorID = a.AuthorID WHERE CategoryName = '{$categoryData['CategoryName']}' ORDER BY id DESC");
+$query = $database->executeQuery("SELECT * FROM articles INNER JOIN articles_category ac on articles.ArticleID = ac.ArticleID INNER JOIN categories c2 on ac.CategoryID = c2.CategoryID INNER JOIN authors a on articles.AuthorID = a.AuthorID WHERE CategoryName = '{$categoryData['CategoryName']}' ORDER BY articles.ArticleID DESC");
 $page = new TemplateHandler($themeFile);
 if($categoryData != null) {
 // This aspect of code, determines if any articles can be found that are linked to the category.
