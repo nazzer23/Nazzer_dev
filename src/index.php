@@ -19,6 +19,7 @@ $mainTemplate->setVariable("pageName", "Home");
 $mainTemplate->setVariable("content", $page->getTemplate());
 $mainTemplate->render();
 
+
 function generateSidebarContent($page) {
     global $database, $functions;
 
@@ -48,7 +49,7 @@ function generateSidebarContent($page) {
         $articleDate = strtotime($row['ArticleDate']);
         $item = new TemplateHandler("site.home.sidebar.item");
         $item->setVariable("itemName", $row['ArticleTitle']);
-        $item->setVariable("itemDesc", "Read More about " . $row['ArticleTitle']);
+        $item->setVariable("itemDesc", "Read More about &quot;{$row['ArticleTitle']}&quot;");
         $item->setVariable("itemBio", "");
 
         $year = date('Y',$articleDate);
@@ -69,21 +70,9 @@ function populateArticles($page) {
     $articleQuery = $database->executeQuery($articleQuery);
 
     while($articleData = $articleQuery->fetch_array()) {
-        $articleDate = strtotime($articleData['ArticleDate']);
-        $article = new TemplateHandler("site.home.article");
-        $article->setVariable("articleTitle", $articleData['ArticleTitle']);
-        $article->setVariable("authorName","{$articleData['AuthorFirstName']} {$articleData['AuthorLastName']}");
-        $article->setVariable("postedDate", date('F jS Y',$articleDate));
-        $article->setVariable("categoryName",$articleData['CategoryName']);
-        $articleContent = (strlen($articleData['ArticleContent']) >= 254 ? substr($articleData['ArticleContent'], 0, 254) . "..." : $articleData['ArticleContent']);
-        $article->setVariable("articleContent",$articleContent);
-
-        $year = date('Y',$articleDate);
-        $postMonth = date('m',$articleDate);
-        $postDay = date('d',$articleDate);
-        $articleURLTitle = $articleData['ArticleURL'];
-
-        $article->setVariable("articleURL","/article/{$year}/{$postMonth}/{$postDay}/{$articleURLTitle}/");
+        $article = $functions->generateArticleTemplate($articleData);
         $page->appendVariable("articles", $article->getTemplate());
     }
+
+    //TODO: Pagination for Articles.
 }
