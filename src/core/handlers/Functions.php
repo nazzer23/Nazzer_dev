@@ -18,6 +18,7 @@ class Functions
     public function generateArticleTemplate($articleData) {
         $articleDate = strtotime($articleData['ArticleDate']);
         $article = new TemplateHandler("site.home.article");
+        $article->setVariable("articleID", $articleData['ArticleID']);
         $article->setVariable("articleTitle", $articleData['ArticleTitle']);
         $article->setVariable("authorName","{$articleData['AuthorFirstName']} {$articleData['AuthorLastName']}");
         $article->setVariable("postedDate", date('F jS Y',$articleDate));

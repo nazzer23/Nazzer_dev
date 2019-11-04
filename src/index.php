@@ -19,12 +19,12 @@ $mainTemplate->setVariable("pageName", "Home");
 $mainTemplate->setVariable("content", $page->getTemplate());
 $mainTemplate->render();
 
-
 function generateSidebarContent($page) {
     global $database, $functions;
 
     // Generate Categories
     $category = new TemplateHandler("site.home.sidebar");
+    $category->setVariable("panelID", 0);
     $category->setVariable("panelName", "Categories");
 
     $query = "SELECT * FROM categories ORDER BY CategoryID DESC";
@@ -41,9 +41,10 @@ function generateSidebarContent($page) {
 
     // Generate Recent Articles
     $recentArticles = new TemplateHandler("site.home.sidebar");
+    $recentArticles->setVariable("panelID", 1);
     $recentArticles->setVariable("panelName", "Recent Articles");
 
-    $query = "SELECT articles.*, a.AuthorFirstName, a.AuthorLastName FROM articles INNER JOIN authors a on articles.AuthorID = a.AuthorID ORDER BY ArticleID DESC LIMIT 6";
+    $query = "SELECT articles.*, a.AuthorFirstName, a.AuthorLastName FROM articles INNER JOIN authors a on articles.AuthorID = a.AuthorID ORDER BY ArticleID DESC LIMIT 4";
     $query = $database->executeQuery($query);
     while($row = $query->fetch_array()) {
         $articleDate = strtotime($row['ArticleDate']);
@@ -66,13 +67,47 @@ function generateSidebarContent($page) {
 }
 function populateArticles($page) {
     global $database, $functions;
-    $articleQuery = "SELECT articles.*, CategoryName, AuthorLastName, AuthorFirstName, a.AuthorID FROM articles INNER JOIN authors a on articles.AuthorID = a.AuthorID INNER JOIN articles_category ac on articles.ArticleID = ac.ArticleID INNER JOIN categories c2 on ac.CategoryID = c2.CategoryID ORDER BY ArticleID DESC";
-    $articleQuery = $database->executeQuery($articleQuery);
+    $mainQuery = "SELECT articles.*, CategoryName, AuthorLastName, AuthorFirstName, a.AuthorID FROM articles INNER JOIN authors a on articles.AuthorID = a.AuthorID INNER JOIN articles_category ac on articles.ArticleID = ac.ArticleID INNER JOIN categories c2 on ac.CategoryID = c2.CategoryID ORDER BY ArticleID DESC";
 
-    while($articleData = $articleQuery->fetch_array()) {
-        $article = $functions->generateArticleTemplate($articleData);
-        $page->appendVariable("articles", $article->getTemplate());
+    $articlesToLimitBy = 4;
+    $currentPage = 1;
+    if(isset($_GET['pageID'])) {
+        if(is_numeric($_GET['pageID'])) {
+            $currentPage = floor($_GET['pageID']);
+        }
     }
 
-    //TODO: Pagination for Articles.
+    $totalArticleCount = $database->getNumberOfRows($mainQuery);
+    $maxPages = ceil($totalArticleCount / $articlesToLimitBy);
+    if($currentPage > $maxPages) {
+        header('Location: /');
+    }
+    $articleStart = ($currentPage-1) * $articlesToLimitBy;
+
+    $articleQuery = $mainQuery . " LIMIT {$articleStart}, {$articlesToLimitBy}";
+    $articleQuery = $database->executeQuery($articleQuery);
+
+    if($articleQuery->num_rows <= 0) {
+        if($currentPage == 1) {
+            $article = new TemplateHandler("site.home.article");
+            $page->appendVariable("articles", $article->getTemplate());
+        }
+    } else {
+        while($articleData = $articleQuery->fetch_array()) {
+            $article = $functions->generateArticleTemplate($articleData);
+            $page->appendVariable("articles", $article->getTemplate());
+        }
+    }
+
+    $previousPage = $currentPage - 1;
+    $nextPage = $currentPage + 1;
+    if($currentPage > 1) {
+        $page->appendVariable("currentPage", "<a href='/?pageID={$previousPage}'>Previous Page</a><br>");
+    }
+    if($currentPage < $maxPages) {
+        $page->appendVariable("currentPage", "<a href='/?pageID={$nextPage}'>Next Page</a><br>");
+    }
+
+    $page->appendVariable("currentPage", "Page {$currentPage} of {$maxPages}");
+
 }
